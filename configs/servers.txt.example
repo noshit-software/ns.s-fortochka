@@ -1,0 +1,10 @@
+# Fortochka active servers
+# One server per line. Format:
+# IP PORT UUID PUBLIC_KEY SNI SHORT_ID NAME
+#
+# This file is used by generate-subscription.sh to build the subscription URL.
+# The real servers.txt is gitignored — copy this file to servers.txt and fill in.
+#
+# Example:
+# 140.238.1.100 443 550e8400-e29b-41d4-a716-446655440000 abc123publickey== microsoft.com deadbeef01234567 oracle-frankfurt
+# 5.78.186.35 443 550e8400-e29b-41d4-a716-446655440000 abc123publickey== apple.com deadbeef01234567 hetzner-helsinki

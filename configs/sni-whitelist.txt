@@ -1,0 +1,35 @@
+# SNI domains known to work from Russia for VLESS+Reality
+# These are major sites Russia cannot afford to block entirely.
+# The DPI sees your connection as legitimate HTTPS to one of these domains.
+#
+# Update this list periodically — check github.com/igareck/vpn-configs-for-russia
+# for the latest working domains.
+#
+# Last verified: 2026-03-31
+
+# Microsoft — widely used in Russian enterprise
+microsoft.com
+www.microsoft.com
+
+# Apple — large iOS user base in Russia
+apple.com
+www.apple.com
+
+# Google — still partially accessible
+dl.google.com
+www.google.com
+
+# Yahoo
+yahoo.com
+www.yahoo.com
+
+# Cloudflare — CDN backbone, blocking it breaks too many sites
+cloudflare.com
+www.cloudflare.com
+
+# Amazon AWS — enterprise dependency
+amazonaws.com
+
+# Samsung — major phone vendor in Russia
+samsung.com
+www.samsung.com
