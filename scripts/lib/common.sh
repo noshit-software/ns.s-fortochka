@@ -108,8 +108,13 @@ generate_reality_keypair() {
     fi
 
     output=$("$xray_bin" x25519)
-    REALITY_PRIVATE_KEY=$(echo "$output" | grep "Private" | awk '{print $NF}')
-    REALITY_PUBLIC_KEY=$(echo "$output" | grep "Public" | awk '{print $NF}')
+    REALITY_PRIVATE_KEY=$(echo "$output" | grep -i "private" | awk '{print $NF}')
+    REALITY_PUBLIC_KEY=$(echo "$output" | grep -i "password\|public" | awk '{print $NF}')
+    if [[ -z "$REALITY_PRIVATE_KEY" || -z "$REALITY_PUBLIC_KEY" ]]; then
+        log_error "Failed to parse Reality keypair. Raw output:"
+        echo "$output" >&2
+        return 1
+    fi
     export REALITY_PRIVATE_KEY REALITY_PUBLIC_KEY
 }
 
