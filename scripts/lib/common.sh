@@ -87,25 +87,27 @@ generate_short_id() {
 
 generate_reality_keypair() {
     # Requires xray to be installed
-    if ! command -v xray &>/dev/null; then
+    local xray_bin=""
+    local output=""
+
+    if command -v xray &>/dev/null; then
+        xray_bin="xray"
+    else
         # Try common install locations
-        local xray_bin=""
         for path in /usr/local/x-ui/bin/xray-linux-* /usr/local/bin/xray /usr/bin/xray; do
             if [[ -x "$path" ]]; then
                 xray_bin="$path"
                 break
             fi
         done
-        if [[ -z "$xray_bin" ]]; then
-            log_error "XRay binary not found. Install 3x-ui first."
-            return 1
-        fi
-        local output
-        output=$("$xray_bin" x25519)
-    else
-        local output
-        output=$(xray x25519)
     fi
+
+    if [[ -z "$xray_bin" ]]; then
+        log_error "XRay binary not found. Install 3x-ui first."
+        return 1
+    fi
+
+    output=$("$xray_bin" x25519)
     REALITY_PRIVATE_KEY=$(echo "$output" | grep "Private" | awk '{print $NF}')
     REALITY_PUBLIC_KEY=$(echo "$output" | grep "Public" | awk '{print $NF}')
     export REALITY_PRIVATE_KEY REALITY_PUBLIC_KEY
