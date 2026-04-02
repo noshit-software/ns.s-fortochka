@@ -25,43 +25,79 @@ A collection of bash scripts to:
 - End users (family) are non-technical — everything on their side must be dead simple
 - No Terraform, no Ansible, no Docker — just shell scripts a developer can read and run
 - Never commit real keys, UUIDs, server IPs, or .env files
-- Config templates use `__PLACEHOLDER__` syntax for substitution
 - All scripts source `scripts/lib/common.sh` for shared functions
-
-## Protocol requirements (Russia-specific)
-
-- SNI domain MUST be from the Russian whitelist (see `configs/sni-whitelist.txt`)
-- Flow MUST be `xtls-rprx-vision` (avoids TLS-in-TLS detection)
-- Fingerprint should be `chrome` or `firefox`
-- Hetzner IPs are being throttled from Russia — prefer Oracle Cloud, BuyVM, Scaleway
-- Port 443 is mandatory (blends with HTTPS traffic)
+- Do NOT edit XRay config files directly — 3x-ui manages config via its database and overwrites manual changes
+- Configure VLESS inbounds through the 3x-ui web panel, not scripts
 
 ## Active servers
 
-- **fortochka** (Oracle Cloud, San Jose): `ssh -i ~/.ssh/fortochka.key ubuntu@163.192.34.235`
-- 3x-ui panel: `http://163.192.34.235:2053/mHdFe3WjFxXacirHi0/` (admin/admin)
-- Subscription URL: `http://163.192.34.235:2096/sub/55litne3iods7ein`
-- Reality target: yahoo.com, fingerprint: chrome, flow: xtls-rprx-vision
-- Client UUID: cf68f21d-8804-4eb5-8ae9-51c66cde0...
-- Subscription ID: 55litne3iods7ein
+- **fortochka** (Oracle Cloud Free Tier, E2.1.Micro AMD, San Jose)
+  - SSH: `ssh -i ~/.ssh/fortochka.key ubuntu@163.192.34.235`
+  - 3x-ui panel: `http://163.192.34.235:2053/mHdFe3WjFxXacirHi0/` (admin/admin)
+  - Subscription URL: `http://163.192.34.235:2096/sub/55litne3iods7ein`
+  - Reality target/SNI: yahoo.com
+  - Fingerprint: chrome
+  - Flow: xtls-rprx-vision
+  - VCN Security List open ports: 22, 443, 2053, 2096
 
-## Lessons learned
+## How to change the disguise target
 
-- Do NOT edit XRay config files directly — 3x-ui manages its own config via its database and overwrites manual changes
-- Configure everything through the 3x-ui web panel
-- Oracle Cloud Ubuntu images ship with restrictive iptables rules that must be flushed and persisted:
-  ```
-  sudo iptables -F && sudo iptables -P INPUT ACCEPT && sudo iptables -P FORWARD ACCEPT && sudo iptables -P OUTPUT ACCEPT
-  sudo iptables-save | sudo tee /etc/iptables/rules.v4
-  ```
-- Oracle Cloud has TWO firewalls: iptables on the instance AND the VCN Security List in the console
-- The setup script in this repo needs significant rework — manual panel setup via 3x-ui UI is the reliable path
-- v2RayTun works on both iOS and Android (10M+ users), not iOS-only as originally assumed
+If the current SNI target (yahoo.com) gets blocked:
+
+1. SSH into the server
+2. Open the 3x-ui panel in your browser
+3. Go to **Inbounds** > click the **edit** (pencil) icon on the inbound
+4. Change **Target** to `newsite.com:443` and **SNI** to `newsite.com`
+5. Save and restart XRay
+6. The family's app auto-updates via subscription — no action needed on their end
+
+Good target sites: major sites Russia can't afford to block (see `configs/sni-whitelist.txt`). The target must support TLS 1.3 and NOT be behind a CDN.
+
+## How to add a new user
+
+1. Open the 3x-ui panel
+2. Go to **Inbounds** > expand the inbound > click **+** (add client)
+3. Set **Flow** to `xtls-rprx-vision`
+4. Save
+5. Click the QR/info icon to get their VLESS link or subscription URL
+
+## How to rotate a blocked server
+
+If the server IP gets blocked:
+
+1. Spin up a new Oracle Cloud instance (or other provider)
+2. Run `sudo bash scripts/setup-server.sh` on it
+3. Configure VLESS+Reality via the 3x-ui panel (same steps as initial setup)
+4. Send the new VLESS link or subscription URL to the family
+5. Terminate the old instance
+
+## Protocol requirements (Russia-specific)
+
+- SNI domain MUST be a major site Russia can't block (see `configs/sni-whitelist.txt`)
+- Flow MUST be `xtls-rprx-vision` (avoids TLS-in-TLS detection)
+- Fingerprint should be `chrome` or `firefox`
+- Target site must support TLS 1.3, must NOT be behind a CDN
+- Hetzner IPs are being throttled from Russia — prefer Oracle Cloud, BuyVM, Scaleway
+- Port 443 is mandatory (blends with HTTPS traffic)
+
+## Oracle Cloud notes
+
+- Free tier accounts are locked to their home region
+- TWO firewalls: iptables on the instance AND VCN Security List in the console — both must allow traffic
+- The setup script flushes Oracle's default restrictive iptables and persists the rules
+- To open ports in VCN: Hamburger menu > Networking > Virtual Cloud Networks > your VCN > Subnets > your subnet > Security Lists > Default Security List > Add Ingress Rules
+- ARM instances (A1.Flex) are often out of capacity — AMD E2.1.Micro (1GB RAM) works fine for XRay
+
+## Client setup (for the family)
+
+1. Install **v2RayTun** and **Hiddify** from the App Store / Play Store (both platforms)
+2. Send them the VLESS link via email (mail.ru/yandex — whitelisted in Russia)
+3. They copy the link, open v2RayTun, tap **+**, tap **Import config from clipboard**
+4. Connect — all traffic now goes through the VPN
 
 ## Repo conventions
 
 - Scripts go in `scripts/`, shared functions in `scripts/lib/`
-- Config templates go in `configs/`
 - Generated output (QR codes, client configs) goes in `output/` (gitignored)
 - Live server data goes in `configs/servers.txt` (gitignored)
 - Subscription files go in `subscription/` (active.txt is gitignored)
