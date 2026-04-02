@@ -14,14 +14,17 @@ Oracle Cloud offers an "Always Free" tier that includes ARM-based VPS instances 
 ### Create a VPS instance
 
 1. After signing in, go to **Compute > Instances > Create Instance**
-2. Name: anything (e.g., `fortochka-fra`)
-3. **Placement**: Change to **Frankfurt** (eu-frankfurt-1) or **Amsterdam** — these are closest to Russia
+2. Name: anything (e.g., `fortochka`)
+3. **Placement**: Free tier accounts are limited to their home region. Frankfurt or Amsterdam are ideal if available (closest to Russia), but any region works.
 4. **Image**: Ubuntu 24.04
-5. **Shape**: Change to **Ampere** (ARM) — select **VM.Standard.A1.Flex**
-   - 1 OCPU and 6 GB RAM is plenty (stays within free tier)
-6. **Networking**: Use default VCN or create a new one
-7. **SSH Key**: Upload your public SSH key (or let Oracle generate one — download the private key!)
+5. **Shape**: Two Always Free options:
+   - **VM.Standard.A1.Flex** (ARM/Ampere) — 1 OCPU, 6 GB RAM. More powerful but often out of capacity.
+   - **VM.Standard.E2.1.Micro** (AMD) — 1 OCPU, 1 GB RAM. Less powerful but sufficient for XRay. Usually available.
+6. **Networking**: Select **Create new virtual cloud network**. Make sure **Assign public IPv4** is toggled ON. If it's not available, ensure you selected a public subnet.
+7. **SSH Key**: Let Oracle generate a key pair and **download both keys immediately**. You cannot retrieve them later.
 8. Click **Create**
+
+**If ARM shape is out of capacity**: use the AMD E2.1.Micro. 1 GB RAM is enough — XRay uses about 50-100 MB.
 
 ### Open ports (critical!)
 
@@ -36,8 +39,8 @@ Oracle Cloud has TWO firewalls. You must open ports in BOTH:
    - Source: `0.0.0.0/0`, Protocol: TCP, Destination Port: `YOUR_WS_PORT`
    - Source: `0.0.0.0/0`, Protocol: TCP, Destination Port: `YOUR_PANEL_PORT`
 
-**2. Instance firewall (iptables/ufw):**
-The setup script handles this automatically.
+**2. Instance firewall (iptables):**
+The setup script handles this automatically. It flushes Oracle's default restrictive iptables rules and persists the changes across reboots.
 
 ### SSH into your instance
 

@@ -1,12 +1,10 @@
 # iOS Setup — v2RayTun
 
-## 1. Install v2RayTun
+## 1. Install v2RayTun and Hiddify
 
-Open the App Store on your iPhone and search for **v2RayTun**. Install it.
+Open the App Store on your iPhone and search for **v2RayTun**. Install it. Then search for **Hiddify** and install that too — it's a backup in case v2RayTun gets removed.
 
-If you can't find it in the App Store, try **Hiddify** as a backup.
-
-**Do this NOW** even if the VPN server isn't ready yet. If Apple removes the app later, you won't be able to install it.
+**Do this NOW** even if the VPN server isn't ready yet. If Apple removes these apps later, you won't be able to install them. iPhones cannot sideload apps.
 
 ## 2. Add the server (QR code method)
 

@@ -48,9 +48,7 @@ if [[ -f "$GIST_ID_FILE" ]]; then
     GIST_ID=$(cat "$GIST_ID_FILE")
     log_info "Updating existing Gist: $GIST_ID"
 
-    gh gist edit "$GIST_ID" "$SUB_FILE" 2>/dev/null
-
-    if [[ $? -eq 0 ]]; then
+    if gh gist edit "$GIST_ID" "$SUB_FILE" 2>/dev/null; then
         log_info "Gist updated successfully"
     else
         log_warn "Failed to update Gist. Creating a new one..."
