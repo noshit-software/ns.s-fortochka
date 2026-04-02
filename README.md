@@ -64,7 +64,27 @@ docs/
   client-setup-android.md    # Step-by-step phone setup (Android)
   server-providers.md        # VPS provider guide (Oracle Cloud, etc.)
   architecture.md            # How VLESS+Reality works
+
+radio/
+  site/                      # Static frontend (Cloudflare Pages)
+    index.html               # Retro radio UI
+    style.css                # Old-school Russian radio styling
+    app.js                   # Fetch status, handle preset buttons
+  worker/                    # Cloudflare Worker (API)
+    src/index.js             # Request router + cron health checks
+    src/config.js            # Server configs (secrets stay here)
+    src/health.js            # Server health probes
+    src/vless.js             # VLESS link generator
+
+providers/                   # Deploy guides per VPS provider
+monitor/                     # Health monitor with Telegram alerts
 ```
+
+## Fortochka Radio
+
+A web-based control panel styled as an old-school Russian radio. Family members open it in their browser, see which proxy servers are working (green lights), tap a preset button, and get the connection link copied to clipboard. No phone call to the operator needed.
+
+The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and UUIDs never reach the browser.
 
 ## How it works
 

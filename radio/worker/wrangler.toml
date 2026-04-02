@@ -1,0 +1,15 @@
+name = "fortochka-radio-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Uncomment and fill in after creating KV namespace:
+# npx wrangler kv:namespace create "STATUS_KV"
+# [[kv_namespaces]]
+# binding = "STATUS_KV"
+# id = "<namespace-id>"
+
+# To set a PIN for the /api/connect endpoint:
+# npx wrangler secret put PIN

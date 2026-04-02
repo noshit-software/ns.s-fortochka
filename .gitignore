@@ -28,5 +28,9 @@ Thumbs.db
 *.swo
 *~
 
+# Radio worker
+radio/worker/node_modules/
+radio/worker/.wrangler/
+
 # Logs
 *.log

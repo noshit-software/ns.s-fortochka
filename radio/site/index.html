@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Форточка</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="radio">
+    <!-- Speaker grill / top section -->
+    <div class="radio-top">
+      <div class="grill"></div>
+    </div>
+
+    <!-- Frequency band / status display -->
+    <div class="radio-display">
+      <div class="display-label">ФОРТОЧКА</div>
+      <div class="display-status" id="status-text">Scanning...</div>
+      <div class="power-led" id="power-led"></div>
+    </div>
+
+    <!-- Preset buttons — populated dynamically from API -->
+    <div class="radio-presets" id="presets">
+      <!-- Buttons injected by app.js -->
+    </div>
+
+    <!-- Output area -->
+    <div class="radio-output" id="output">
+      <div class="output-idle">Select a station</div>
+    </div>
+
+    <!-- Bottom trim -->
+    <div class="radio-bottom">
+      <div class="brand">noshit.software</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
