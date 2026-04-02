@@ -13,6 +13,11 @@ output/
 configs/servers.txt
 subscription/active.txt
 
+# Monitor state and config (contain real IPs)
+monitor/servers.conf
+monitor/.last-state
+subscription/.gist-id
+
 # OS junk
 .DS_Store
 Thumbs.db

@@ -1,0 +1,12 @@
+# Fortochka server monitor — server list
+# Format: NAME IP PORT SNI
+#
+# NAME: friendly name for alerts
+# IP: server public IP
+# PORT: VLESS port (usually 443)
+# SNI: Reality target domain (for TLS check)
+#
+# Example:
+# oracle-sanjose 163.192.34.235 443 yahoo.com
+# scaleway-warsaw 51.x.x.x 443 yahoo.com
+# scaleway-paris 51.x.x.x 443 samsung.com
