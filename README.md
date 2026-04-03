@@ -86,6 +86,9 @@ A web-based control panel styled as an old-school Russian radio. Family members 
 
 The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and UUIDs never reach the browser.
 
+- **Live**: [fortochka-radio.pages.dev](https://fortochka-radio.pages.dev)
+- **API**: [fortochka-radio-api.robertgardunia.workers.dev](https://fortochka-radio-api.robertgardunia.workers.dev/api/status)
+
 ## How it works
 
 VLESS+Reality makes your VPN traffic look like a normal HTTPS connection to a major website (like yahoo.com). Russia's deep packet inspection (DPI) system sees what appears to be legitimate traffic and lets it through. Your actual data travels encrypted inside this disguise.

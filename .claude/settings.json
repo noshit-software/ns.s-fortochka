@@ -4,7 +4,8 @@
       "Bash(ls ~/.ssh/*.pub)",
       "WebFetch(domain:habr.com)",
       "WebFetch(domain:craftedsilicon.com)",
-      "WebFetch(domain:wiki.aeza.net)"
+      "WebFetch(domain:wiki.aeza.net)",
+      "Bash(npx wrangler:*)"
     ]
   }
 }

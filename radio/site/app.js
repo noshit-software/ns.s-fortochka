@@ -2,7 +2,7 @@
 // Fetches server status from Worker API, renders preset buttons,
 // handles connection link generation.
 
-const API_BASE = "https://fortochka-radio-api.workers.dev"; // Update after deploy
+const API_BASE = "https://fortochka-radio-api.robertgardunia.workers.dev";
 
 const $ = (sel) => document.querySelector(sel);
 const statusText = $("#status-text");

@@ -8,31 +8,52 @@
 </head>
 <body>
   <div class="radio">
-    <!-- Speaker grill / top section -->
-    <div class="radio-top">
-      <div class="grill"></div>
+    <!-- Wood cabinet top curve -->
+    <div class="cabinet-top"></div>
+
+    <!-- Speaker grill with fabric texture -->
+    <div class="speaker-section">
+      <div class="speaker-grill">
+        <div class="grill-badge">
+          <div class="power-led" id="power-led"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- Frequency band / status display -->
-    <div class="radio-display">
-      <div class="display-label">ФОРТОЧКА</div>
-      <div class="display-status" id="status-text">Scanning...</div>
-      <div class="power-led" id="power-led"></div>
+    <!-- Frequency band display -->
+    <div class="freq-band">
+      <div class="freq-label">ФОРТОЧКА</div>
+      <div class="freq-status" id="status-text">Scanning...</div>
     </div>
 
-    <!-- Preset buttons — populated dynamically from API -->
-    <div class="radio-presets" id="presets">
-      <!-- Buttons injected by app.js -->
+    <!-- Control panel with preset buttons -->
+    <div class="control-panel">
+      <!-- Left knob (decorative) -->
+      <div class="knob knob-left">
+        <div class="knob-inner"></div>
+        <div class="knob-indicator"></div>
+      </div>
+
+      <!-- Preset buttons -->
+      <div class="presets" id="presets">
+        <!-- Injected by app.js -->
+      </div>
+
+      <!-- Right knob (decorative) -->
+      <div class="knob knob-right">
+        <div class="knob-inner"></div>
+        <div class="knob-indicator"></div>
+      </div>
     </div>
 
-    <!-- Output area -->
-    <div class="radio-output" id="output">
+    <!-- Output display -->
+    <div class="output-panel" id="output">
       <div class="output-idle">Select a station</div>
     </div>
 
     <!-- Bottom trim -->
-    <div class="radio-bottom">
-      <div class="brand">noshit.software</div>
+    <div class="cabinet-bottom">
+      <span class="brand">noshit.software</span>
     </div>
   </div>
 

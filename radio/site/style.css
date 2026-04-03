@@ -1,10 +1,6 @@
-/* Fortochka Radio — Old-school Russian radio aesthetic */
+/* Fortochka Radio — CSS-built Russian radio */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   background: #1a1410;
@@ -16,207 +12,292 @@ body {
   padding: 16px;
 }
 
-/* ─── Radio Cabinet ─────────────────────────────────────────── */
+/* ─── Cabinet ───────────────────────────────────────────────── */
 
 .radio {
   width: 100%;
-  max-width: 420px;
-  background: linear-gradient(145deg, #5c3a1e, #3d2410, #2e1a0c);
-  border-radius: 16px;
+  max-width: 480px;
+  background: linear-gradient(
+    160deg,
+    #6b4423 0%,
+    #5a3518 15%,
+    #4a2810 40%,
+    #3d2010 60%,
+    #4a2810 85%,
+    #5a3518 100%
+  );
+  border-radius: 20px 20px 12px 12px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  border: 2px solid #4a2e16;
+    0 12px 40px rgba(0, 0, 0, 0.7),
+    0 2px 0 rgba(255, 255, 255, 0.05) inset,
+    0 -2px 8px rgba(0, 0, 0, 0.3) inset;
+  border: 3px solid #3a2210;
   overflow: hidden;
+  position: relative;
+}
+
+.cabinet-top {
+  height: 12px;
+  background: linear-gradient(180deg, #7a5030, #5a3518);
+  border-bottom: 1px solid #3a2210;
 }
 
 /* ─── Speaker Grill ─────────────────────────────────────────── */
 
-.radio-top {
-  padding: 24px 20px 16px;
+.speaker-section {
+  padding: 16px 24px 12px;
 }
 
-.grill {
-  height: 100px;
-  border-radius: 8px;
+.speaker-grill {
+  height: 120px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #3a2210;
+  box-shadow:
+    inset 0 3px 10px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Fabric texture — horizontal lines */
   background:
     repeating-linear-gradient(
       0deg,
-      #c9b896 0px,
-      #c9b896 2px,
-      #b8a67e 2px,
-      #b8a67e 4px
+      #c9b896 0px, #c9b896 1px,
+      #bfae86 1px, #bfae86 2px,
+      #c4b38e 2px, #c4b38e 3px,
+      #b8a67e 3px, #b8a67e 4px
     );
-  border: 2px solid #4a3520;
-  box-shadow:
-    inset 0 2px 8px rgba(0, 0, 0, 0.3),
-    0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-/* ─── Display Band ──────────────────────────────────────────── */
+/* Diamond pattern overlay on fabric */
+.speaker-grill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      transparent 0px, transparent 8px,
+      rgba(0,0,0,0.03) 8px, rgba(0,0,0,0.03) 9px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px, transparent 8px,
+      rgba(0,0,0,0.03) 8px, rgba(0,0,0,0.03) 9px
+    );
+}
 
-.radio-display {
-  margin: 0 20px;
-  padding: 12px 16px;
-  background: linear-gradient(180deg, #f5e6c8, #e8d5a8);
-  border-radius: 6px;
-  border: 2px solid #4a3520;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+/* Center badge / emblem */
+.grill-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c4a44a, #8b6914);
+  border: 2px solid #6b5020;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
-}
-
-.display-label {
-  font-size: 18px;
-  font-weight: bold;
-  color: #3d2410;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.display-status {
-  font-size: 11px;
-  color: #6b5030;
-  font-style: italic;
-}
-
-.power-led {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #555;
-  border: 1px solid #333;
-  flex-shrink: 0;
-  margin-left: 12px;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-.power-led.online {
-  background: #4caf50;
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
-
-.power-led.offline {
-  background: #f44336;
-  box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
-}
-
-/* ─── Preset Buttons ────────────────────────────────────────── */
-
-.radio-presets {
-  padding: 16px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
   justify-content: center;
 }
 
+.power-led {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #555;
+  border: 1px solid #333;
+  transition: all 0.5s;
+}
+
+.power-led.online {
+  background: radial-gradient(circle at 40% 40%, #7fff7f, #4caf50, #2e7d32);
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.7), 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.power-led.offline {
+  background: radial-gradient(circle at 40% 40%, #ff7f7f, #f44336, #c62828);
+  box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+}
+
+/* ─── Frequency Band ────────────────────────────────────────── */
+
+.freq-band {
+  margin: 0 24px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #f0e0c0, #e4d0a4, #dcc898);
+  border-radius: 4px;
+  border: 2px solid #3a2210;
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 0.15),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.freq-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #3d2410;
+  letter-spacing: 4px;
+}
+
+.freq-status {
+  font-size: 11px;
+  color: #8b7050;
+  font-style: italic;
+}
+
+/* ─── Control Panel ─────────────────────────────────────────── */
+
+.control-panel {
+  padding: 16px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* Knobs */
+.knob {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #c4a44a, #8b6914, #6b5010);
+  border: 2px solid #4a3510;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+  position: relative;
+  cursor: default;
+}
+
+.knob-inner {
+  position: absolute;
+  top: 6px; left: 6px; right: 6px; bottom: 6px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a8872e, #7a6020);
+  border: 1px solid #5a4518;
+}
+
+.knob-indicator {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 10px;
+  background: #e0c060;
+  border-radius: 1px;
+}
+
+/* Presets container */
+.presets {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  min-height: 52px;
+  align-items: center;
+}
+
+/* Preset buttons */
 .preset-btn {
-  flex: 1 1 calc(50% - 10px);
-  min-width: 120px;
-  padding: 14px 10px;
+  flex: 1 1 calc(50% - 8px);
+  min-width: 100px;
+  padding: 10px 8px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 13px;
+  font-size: 12px;
   text-align: center;
-  transition: all 0.2s;
+  transition: all 0.15s;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
 
-  /* Default: brass button look */
-  background: linear-gradient(180deg, #c4a44a, #a8872e);
+  background: linear-gradient(180deg, #d4b858, #b89830, #a08020);
   color: #2e1a0c;
   box-shadow:
-    0 3px 6px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  border: 1px solid #7a6020;
 }
 
 .preset-btn:active {
   transform: translateY(1px);
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(180deg, #c4a848, #a88820, #907010);
 }
 
 .preset-btn .btn-name {
   font-weight: bold;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .preset-btn .btn-detail {
-  font-size: 10px;
+  font-size: 9px;
   opacity: 0.7;
 }
 
-/* Status LED on each button */
 .preset-btn .btn-led {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #555;
   border: 1px solid rgba(0, 0, 0, 0.3);
   position: absolute;
-  top: 8px;
-  right: 8px;
-  transition: background 0.3s, box-shadow 0.3s;
+  top: 6px;
+  right: 6px;
+  transition: all 0.3s;
 }
 
 .preset-btn.ok .btn-led {
-  background: #4caf50;
-  box-shadow: 0 0 6px rgba(76, 175, 80, 0.6);
+  background: radial-gradient(circle, #7fff7f, #4caf50);
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.6);
 }
 
 .preset-btn.down .btn-led {
-  background: #f44336;
-  box-shadow: 0 0 6px rgba(244, 67, 54, 0.4);
+  background: radial-gradient(circle, #ff7f7f, #f44336);
+  box-shadow: 0 0 5px rgba(244, 67, 54, 0.4);
 }
 
-.preset-btn.unknown .btn-led {
-  background: #888;
-}
-
-/* Disabled state for down servers */
 .preset-btn.down {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
-  background: linear-gradient(180deg, #8a7a5a, #6b5c3e);
+  background: linear-gradient(180deg, #9a8a58, #7a6a40);
 }
 
 .preset-btn.selected {
-  background: linear-gradient(180deg, #d4b44a, #c49e2e);
+  background: linear-gradient(180deg, #e8c860, #c8a830);
   box-shadow:
-    0 3px 6px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 0 12px rgba(212, 180, 74, 0.3);
+    0 0 14px rgba(212, 180, 74, 0.25);
 }
 
-/* Loading state */
-.preset-btn.loading {
-  animation: pulse-brass 1.5s infinite;
-}
+/* ─── Output Panel ──────────────────────────────────────────── */
 
-@keyframes pulse-brass {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* ─── Output Area ───────────────────────────────────────────── */
-
-.radio-output {
-  margin: 0 20px;
-  padding: 16px;
-  min-height: 80px;
-  background: linear-gradient(180deg, #f5e6c8, #e8d5a8);
-  border-radius: 6px;
-  border: 2px solid #4a3520;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
+.output-panel {
+  margin: 0 24px 16px;
+  padding: 14px 16px;
+  min-height: 70px;
+  background: linear-gradient(180deg, #f0e0c0, #e4d0a4);
+  border-radius: 4px;
+  border: 2px solid #3a2210;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15);
   text-align: center;
   font-size: 13px;
   color: #3d2410;
@@ -225,47 +306,43 @@ body {
 .output-idle {
   color: #8b7050;
   font-style: italic;
-  padding: 16px 0;
+  padding: 10px 0;
 }
 
-.output-success {
-  color: #2e7d32;
-}
+.output-success { color: #2e6b30; }
 
 .output-success .output-link {
   font-family: monospace;
-  font-size: 10px;
+  font-size: 9px;
   word-break: break-all;
-  background: rgba(0, 0, 0, 0.06);
-  padding: 8px;
-  border-radius: 4px;
-  margin-top: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  border-radius: 3px;
+  margin-top: 6px;
   display: block;
-  max-height: 60px;
+  max-height: 50px;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.output-error {
-  color: #c62828;
-}
+.output-error { color: #a02020; }
 
 .output-instructions {
-  margin-top: 10px;
-  font-size: 11px;
+  margin-top: 8px;
+  font-size: 10px;
   color: #6b5030;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
-/* ─── Bottom Trim ───────────────────────────────────────────── */
+/* ─── Bottom ────────────────────────────────────────────────── */
 
-.radio-bottom {
-  padding: 12px 20px 16px;
+.cabinet-bottom {
+  padding: 8px 24px 14px;
   text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .brand {
-  font-size: 10px;
+  font-size: 9px;
   color: #6b5030;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -273,13 +350,11 @@ body {
 
 /* ─── Responsive ────────────────────────────────────────────── */
 
-@media (max-width: 360px) {
-  .preset-btn {
-    flex: 1 1 100%;
-  }
-
-  .display-label {
-    font-size: 15px;
-    letter-spacing: 2px;
-  }
+@media (max-width: 380px) {
+  .control-panel { padding: 12px 16px; }
+  .speaker-section { padding: 12px 16px 10px; }
+  .freq-band, .output-panel { margin-left: 16px; margin-right: 16px; }
+  .knob { width: 42px; height: 42px; }
+  .preset-btn { flex: 1 1 100%; }
+  .freq-label { font-size: 14px; letter-spacing: 2px; }
 }
