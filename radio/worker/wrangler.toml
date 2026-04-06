@@ -5,11 +5,23 @@ compatibility_date = "2024-01-01"
 [triggers]
 crons = ["*/5 * * * *"]
 
-# Uncomment and fill in after creating KV namespace:
-# npx wrangler kv:namespace create "STATUS_KV"
-# [[kv_namespaces]]
-# binding = "STATUS_KV"
-# id = "<namespace-id>"
+[[kv_namespaces]]
+binding = "STATUS_KV"
+id = "b341ef65ca64456da9df7cb1400e3562"
 
-# To set a PIN for the /api/connect endpoint:
-# npx wrangler secret put PIN
+# -----------------------------------------------------------------------
+# Secrets — set via: npx wrangler secret put <NAME>
+# -----------------------------------------------------------------------
+#
+# PIN              — Optional PIN for /api/connect (leave unset = no PIN)
+#
+# SNI Auto-Rotation (required for automatic failover):
+#   PANEL_URL      — 3x-ui panel base URL, e.g. http://163.192.34.235:2053/mHdFe3WjFxXacirHi0
+#   PANEL_USER     — Panel username (change from admin!)
+#   PANEL_PASS     — Panel password (change from admin!)
+#
+# To set them all:
+#   npx wrangler secret put PANEL_URL
+#   npx wrangler secret put PANEL_USER
+#   npx wrangler secret put PANEL_PASS
+# -----------------------------------------------------------------------

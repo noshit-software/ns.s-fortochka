@@ -28,7 +28,7 @@ The script installs 3x-ui, flushes Oracle Cloud's default iptables rules, and pr
 3. Set Protocol: **vless**, Port: **443**
 4. Expand Client, set Flow: **xtls-rprx-vision**
 5. Set Security: **Reality**
-6. Set Target/SNI to a major site (e.g. `yahoo.com:443` / `yahoo.com`)
+6. Set Target/SNI to a major site (e.g. `ya.ru:443` / `ya.ru`)
 7. Click **Get New Cert**, then **Create**
 8. Click the QR code icon to get the VLESS share link
 
@@ -53,10 +53,11 @@ scripts/
   generate-subscription.sh   # Build subscription file from all active servers
   health-check.sh            # Check if servers are up and responding
   rotate-server.sh           # Replace a blocked server and update subscription
+  scan-sni.sh                # Test SNI candidates through DPI (run from Russian VPS)
   lib/common.sh              # Shared functions used by all scripts
 
 configs/
-  sni-whitelist.txt          # SNI domains that work from Russia
+  sni-whitelist.txt          # SNI domains that work from Russia (ranked)
   .env.example               # Server configuration template
 
 docs/
@@ -71,10 +72,11 @@ radio/
     style.css                # Old-school Russian radio styling
     app.js                   # Fetch status, handle preset buttons
   worker/                    # Cloudflare Worker (API)
-    src/index.js             # Request router + cron health checks
-    src/config.js            # Server configs (secrets stay here)
+    src/index.js             # Request router + cron health checks + rotation
+    src/config.js            # Server configs + SNI candidate list (secrets stay here)
     src/health.js            # Server health probes
     src/vless.js             # VLESS link generator
+    src/rotator.js           # Auto-rotates SNI via 3x-ui API when server goes down
 
 providers/                   # Deploy guides per VPS provider
 monitor/                     # Health monitor with Telegram alerts
@@ -85,6 +87,13 @@ monitor/                     # Health monitor with Telegram alerts
 A web-based control panel styled as an old-school Russian radio. Family members open it in their browser, see which proxy servers are working (green lights), tap a preset button, and get the connection link copied to clipboard. No phone call to the operator needed.
 
 The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and UUIDs never reach the browser.
+
+**Auto-rotation**: The Worker cron runs every 5 minutes. If a server's SNI disguise stops passing Russian DPI, the Worker automatically tries candidates from `SNI_CANDIDATES` in [config.js](radio/worker/src/config.js), updates the 3x-ui inbound via its API, and restarts XRay. The family's next "Tune In" gets a working link with zero admin intervention.
+
+**Finding working SNIs**: Run [scripts/scan-sni.sh](scripts/scan-sni.sh) from a Russian VPS to test which domains pass DPI:
+```bash
+bash scripts/scan-sni.sh 163.192.34.235
+```
 
 - **Live**: [fortochka-radio.pages.dev](https://fortochka-radio.pages.dev)
 - **API**: [fortochka-radio-api.robertgardunia.workers.dev](https://fortochka-radio-api.robertgardunia.workers.dev/api/status)

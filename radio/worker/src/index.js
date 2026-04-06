@@ -1,9 +1,10 @@
 // Fortochka Radio — Cloudflare Worker
-// API for server health status and VLESS link generation.
+// API for server health status, VLESS link generation, and subscription feed.
 
-import { SERVERS, PIN } from "./config.js";
+import { SERVERS, PIN, SNI_CANDIDATES } from "./config.js";
 import { generateVlessLink } from "./vless.js";
 import { checkAllServers } from "./health.js";
+import { rotateSni, getLiveSni } from "./rotator.js"; // getLiveSni used in cron for cold KV sync
 
 // CORS headers
 const CORS_HEADERS = {
@@ -35,14 +36,60 @@ export default {
       return handleConnect(request, env);
     }
 
+    // Subscription endpoint — returns base64-encoded VLESS links for v2ray-compatible apps.
+    // Stable URL: apps poll this to get the current working config after any rotation.
+    if (url.pathname === "/api/sub" && request.method === "GET") {
+      return handleSub(env);
+    }
+
     return new Response("Not found", { status: 404 });
   },
 
-  // Cron trigger — run health checks and cache in KV
+  // Cron trigger — sync SNI from panel, run health checks, rotate if needed
   async scheduled(event, env) {
-    const results = await checkAllServers(SERVERS);
-    const status = buildStatusResponse(results);
+    // Build live server list: KV is truth, panel is fallback, config.js is seed
+    let servers = await Promise.all(
+      SERVERS.map(async (s) => {
+        // First check KV
+        const kvSni = env.STATUS_KV ? await env.STATUS_KV.get(`sni:${s.id}`) : null;
+        if (kvSni) return { ...s, sni: kvSni };
+        // KV cold — sync from panel and seed KV
+        const panelSni = await getLiveSni(s, env);
+        if (panelSni && env.STATUS_KV) {
+          await env.STATUS_KV.put(`sni:${s.id}`, panelSni);
+        }
+        return panelSni ? { ...s, sni: panelSni } : s;
+      })
+    );
 
+    const results = await checkAllServers(servers);
+
+    // For any server that's down, attempt SNI rotation
+    const rotationPromises = results
+      .filter((r) => r.status === "down")
+      .map(async (r) => {
+        const server = servers.find((s) => s.id === r.id);
+        if (!server) return;
+
+        const rotation = await rotateSni(server, SNI_CANDIDATES, env);
+        if (rotation.rotated) {
+          console.log(`[cron] Rotated ${server.id} SNI to ${rotation.newSni}`);
+          // KV is now truth for this server
+          if (env.STATUS_KV) {
+            await env.STATUS_KV.put(`sni:${server.id}`, rotation.newSni);
+          }
+          servers = servers.map((s) =>
+            s.id === server.id ? { ...s, sni: rotation.newSni } : s
+          );
+          r.status = "ok";
+        } else {
+          console.log(`[cron] Rotation skipped for ${server.id}: ${rotation.reason}`);
+        }
+      });
+
+    await Promise.allSettled(rotationPromises);
+
+    const status = buildStatusResponse(results, servers);
     if (env.STATUS_KV) {
       await env.STATUS_KV.put("status", JSON.stringify(status));
     }
@@ -102,12 +149,36 @@ async function handleConnect(request, env) {
   return jsonResponse({ vless });
 }
 
-function buildStatusResponse(results) {
+// Standard v2ray subscription format: base64(link1\nlink2\n...)
+// Reads current SNI from KV (written by cron after each rotation).
+// Falls back to config.js seed — panel is never hit on this path.
+async function handleSub(env) {
+  const liveServers = await Promise.all(
+    SERVERS.map(async (s) => {
+      const kvSni = env.STATUS_KV ? await env.STATUS_KV.get(`sni:${s.id}`) : null;
+      return kvSni ? { ...s, sni: kvSni } : s;
+    })
+  );
+
+  const links = liveServers.map((s) => generateVlessLink(s)).join("\n");
+  const encoded = btoa(links);
+
+  return new Response(encoded, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Profile-Update-Interval": "6",
+    },
+  });
+}
+
+// servers param allows cron to pass a post-rotation copy with updated SNI values
+function buildStatusResponse(results, servers = SERVERS) {
   const statusMap = Object.fromEntries(results.map((r) => [r.id, r.status]));
 
   return {
     ts: new Date().toISOString(),
-    servers: SERVERS.map((s) => ({
+    servers: servers.map((s) => ({
       id: s.id,
       name: s.name,
       region: s.region,

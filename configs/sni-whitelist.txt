@@ -2,34 +2,47 @@
 # These are major sites Russia cannot afford to block entirely.
 # The DPI sees your connection as legitimate HTTPS to one of these domains.
 #
-# Update this list periodically — check github.com/igareck/vpn-configs-for-russia
-# for the latest working domains.
+# Rules for a good SNI target:
+#   - Must be a domain Russia cannot afford to block (banking, enterprise, govt infrastructure)
+#   - Must support TLS 1.3
+#   - Must NOT be behind Cloudflare, Fastly, or other CDNs (CDN IPs change and break Reality)
+#   - Must have a stable IP (direct A record, not CNAME-heavy)
 #
-# Last verified: 2026-03-31
+# Run scripts/scan-sni.sh from a Russian VPS to verify which ones still work.
+# Update this list periodically — check github.com/igareck/vpn-configs-for-russia
+#
+# Last verified: 2026-04-05
 
-# Microsoft — widely used in Russian enterprise
-microsoft.com
-www.microsoft.com
+# Yandex — best option from Russia, owns critical infrastructure
+ya.ru
+yandex.ru
 
-# Apple — large iOS user base in Russia
+# VK / Mail.ru Group — large Russian social/infra
+cloud.mail.ru
+vkvideo.ru
+
+# Russian business news — can't be blocked without economic impact
+rbc.ru
+dzen.ru
+
+# Apple — large iOS user base in Russia, direct IPs, no CDN
 apple.com
 www.apple.com
 
-# Google — still partially accessible
-dl.google.com
-www.google.com
+# Microsoft — enterprise dependency, can't be blocked without breaking businesses
+microsoft.com
+www.microsoft.com
 
-# Yahoo
+# Samsung — major phone vendor in Russia, stable IPs
+samsung.com
+www.samsung.com
+
+# Yahoo — historically reliable, no CDN
 yahoo.com
 www.yahoo.com
 
-# Cloudflare — CDN backbone, blocking it breaks too many sites
-cloudflare.com
-www.cloudflare.com
+# Google download servers — sometimes passes DPI
+dl.google.com
 
 # Amazon AWS — enterprise dependency
 amazonaws.com
-
-# Samsung — major phone vendor in Russia
-samsung.com
-www.samsung.com
