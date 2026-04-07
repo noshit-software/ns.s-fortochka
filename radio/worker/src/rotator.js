@@ -138,6 +138,22 @@ export async function getLiveSni(server, env) {
   }
 }
 
+// Get the current ranked SNI candidate list.
+// Priority: KV (live scanner results) → sniCandidates arg (config.js seed)
+// If scanner goes offline and KV expires, seed keeps everything working.
+export async function getCandidates(sniCandidates, env) {
+  if (env.STATUS_KV) {
+    const stored = await env.STATUS_KV.get("sni-candidates");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch { /* fall through */ }
+    }
+  }
+  return sniCandidates; // config.js seed fallback
+}
+
 // Main rotation function.
 // Tries each SNI candidate until one works, then updates the panel.
 // Returns { rotated: true, newSni } or { rotated: false, reason }.

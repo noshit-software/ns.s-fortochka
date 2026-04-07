@@ -24,4 +24,5 @@ id = "b341ef65ca64456da9df7cb1400e3562"
 #   npx wrangler secret put PANEL_URL
 #   npx wrangler secret put PANEL_USER
 #   npx wrangler secret put PANEL_PASS
+#   npx wrangler secret put SCAN_SECRET   — shared secret for /api/scan-results
 # -----------------------------------------------------------------------

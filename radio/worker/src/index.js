@@ -4,7 +4,7 @@
 import { SERVERS, PIN, SNI_CANDIDATES } from "./config.js";
 import { generateVlessLink } from "./vless.js";
 import { checkAllServers } from "./health.js";
-import { rotateSni, getLiveSni } from "./rotator.js"; // getLiveSni used in cron for cold KV sync
+import { rotateSni, getLiveSni, getCandidates } from "./rotator.js";
 
 // CORS headers
 const CORS_HEADERS = {
@@ -42,6 +42,12 @@ export default {
       return handleSub(env);
     }
 
+    // Scan results ingest — receives ranked SNI candidates from the Moscow scanner box.
+    // Scanner is optional — if it goes down, rotator falls back to config.js seed.
+    if (url.pathname === "/api/scan-results" && request.method === "POST") {
+      return handleScanResults(request, env);
+    }
+
     return new Response("Not found", { status: 404 });
   },
 
@@ -64,6 +70,9 @@ export default {
 
     const results = await checkAllServers(servers);
 
+    // Get current candidate list — KV (scanner results) or config.js seed
+    const candidates = await getCandidates(SNI_CANDIDATES, env);
+
     // For any server that's down, attempt SNI rotation
     const rotationPromises = results
       .filter((r) => r.status === "down")
@@ -71,7 +80,7 @@ export default {
         const server = servers.find((s) => s.id === r.id);
         if (!server) return;
 
-        const rotation = await rotateSni(server, SNI_CANDIDATES, env);
+        const rotation = await rotateSni(server, candidates, env);
         if (rotation.rotated) {
           console.log(`[cron] Rotated ${server.id} SNI to ${rotation.newSni}`);
           // KV is now truth for this server
@@ -170,6 +179,50 @@ async function handleSub(env) {
       "Profile-Update-Interval": "6",
     },
   });
+}
+
+// Receive ranked SNI candidates from the Moscow scanner box.
+// Validates the secret, stores ordered list in KV with a TTL.
+// If the scanner goes silent, KV expires and rotator falls back to config.js seed.
+async function handleScanResults(request, env) {
+  const secret = env.SCAN_SECRET;
+  if (secret) {
+    const provided = request.headers.get("X-Scan-Secret") || "";
+    if (provided !== secret) {
+      return jsonResponse({ error: "Unauthorized" }, 401);
+    }
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON" }, 400);
+  }
+
+  if (!Array.isArray(body.candidates) || body.candidates.length === 0) {
+    return jsonResponse({ error: "No candidates in payload" }, 400);
+  }
+
+  // Store ordered list — rotator reads this, falls back to config.js if absent
+  const candidates = body.candidates.map((c) => c.sni).filter(Boolean);
+
+  if (env.STATUS_KV) {
+    // TTL: 12 hours — if scanner goes silent, fall back to seed after this window
+    await env.STATUS_KV.put("sni-candidates", JSON.stringify(candidates), {
+      expirationTtl: 60 * 60 * 12,
+    });
+    await env.STATUS_KV.put("sni-scan-meta", JSON.stringify({
+      scanned_at: body.scanned_at,
+      server_ip: body.server_ip,
+      total: body.total,
+      passed: body.passed,
+      received_at: new Date().toISOString(),
+    }));
+  }
+
+  console.log(`[scan] Received ${candidates.length} candidates from ${body.server_ip}`);
+  return jsonResponse({ ok: true, stored: candidates.length });
 }
 
 // servers param allows cron to pass a post-rotation copy with updated SNI values

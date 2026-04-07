@@ -90,10 +90,20 @@ The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and
 
 **Auto-rotation**: The Worker cron runs every 5 minutes. If a server's SNI disguise stops passing Russian DPI, the Worker automatically tries candidates from `SNI_CANDIDATES` in [config.js](radio/worker/src/config.js), updates the 3x-ui inbound via its API, and restarts XRay. The family's next "Tune In" gets a working link with zero admin intervention.
 
-**Finding working SNIs**: Run [scripts/scan-sni.sh](scripts/scan-sni.sh) from a Russian VPS to test which domains pass DPI:
+**Finding working SNIs**: Run [scripts/scan-sni.sh](scripts/scan-sni.sh) from a Russian VPS to test which domains pass DPI. Results are automatically POSTed to the Worker and stored in KV — the rotator uses them immediately:
 ```bash
-bash scripts/scan-sni.sh 163.192.34.235
+bash scan-sni.sh 163.192.34.235 sni-whitelist.txt https://fortochka-radio-api.robertgardunia.workers.dev <SCAN_SECRET>
 ```
+
+Set up as a cron job on the Russian VPS for continuous scanning:
+```bash
+0 */4 * * * bash /root/scan-sni.sh 163.192.34.235 /root/sni-whitelist.txt https://fortochka-radio-api.robertgardunia.workers.dev <secret> >> /root/scan.log 2>&1
+```
+
+**Fallback chain** — scanner is not a required dependency:
+1. KV `sni-candidates` — live ranked results from scanner (12hr TTL)
+2. `SNI_CANDIDATES` in [config.js](radio/worker/src/config.js) — hardcoded seed
+3. Current working SNI — no rotation if all else fails
 
 - **Live**: [fortochka-radio.pages.dev](https://fortochka-radio.pages.dev)
 - **API**: [fortochka-radio-api.robertgardunia.workers.dev](https://fortochka-radio-api.robertgardunia.workers.dev/api/status)

@@ -5,16 +5,25 @@
 # From a non-Russian IP the test is meaningless — DPI only runs on Russian traffic.
 #
 # Usage:
-#   bash scripts/scan-sni.sh <server-ip> [candidates-file]
+#   bash scan-sni.sh <server-ip> [candidates-file] [worker-url] [scan-secret]
 #
-# Example:
-#   bash scripts/scan-sni.sh 163.192.34.235
-#   bash scripts/scan-sni.sh 163.192.34.235 configs/sni-whitelist.txt
+# Examples:
+#   bash scan-sni.sh 163.192.34.235
+#   bash scan-sni.sh 163.192.34.235 sni-whitelist.txt https://fortochka-radio-api.robertgardunia.workers.dev mysecret
+#
+# If worker-url and scan-secret are provided, results are automatically POSTed
+# to the Worker's KV so the rotator always has a fresh ranked candidate list.
+# If not provided, results are printed only — scanner works standalone.
+#
+# Set up as a cron job for continuous scanning:
+#   0 */4 * * * bash /root/scan-sni.sh 163.192.34.235 /root/sni-whitelist.txt https://... secret >> /root/scan.log 2>&1
 
 set -euo pipefail
 
-SERVER_IP="${1:?Usage: scan-sni.sh <server-ip> [candidates-file]}"
-CANDIDATES_FILE="${2:-configs/sni-whitelist.txt}"
+SERVER_IP="${1:?Usage: scan-sni.sh <server-ip> [candidates-file] [worker-url] [scan-secret]}"
+CANDIDATES_FILE="${2:-sni-whitelist.txt}"
+WORKER_URL="${3:-}"
+SCAN_SECRET="${4:-}"
 SERVER_PORT=443
 TIMEOUT=10
 
@@ -33,6 +42,7 @@ echo -e "${BOLD}=== Fortochka SNI Scanner ===${NC}"
 echo "Server:     $SERVER_IP:$SERVER_PORT"
 echo "Candidates: $CANDIDATES_FILE"
 echo "Timeout:    ${TIMEOUT}s per domain"
+echo "Worker:     ${WORKER_URL:-not configured (results printed only)}"
 echo ""
 echo "Testing TLS handshakes through Russian DPI..."
 echo "-------------------------------------------"
@@ -114,10 +124,50 @@ total=$(( ${#pass_fast[@]} + ${#pass_slow[@]} + ${#fail_list[@]} ))
 passed=$(( ${#pass_fast[@]} + ${#pass_slow[@]} ))
 echo "Tested: $total  |  Passed: $passed  |  Blocked: ${#fail_list[@]}"
 
+# POST results to Worker KV if configured
+if [[ -n "$WORKER_URL" && -n "$SCAN_SECRET" ]]; then
+  echo ""
+  echo "Posting results to Worker..."
+
+  # Build JSON array of results ordered by speed (fast first, slow after, failed omitted)
+  json_candidates="["
+  first=1
+  for entry in "${pass_fast[@]}" "${pass_slow[@]}"; do
+    sni="${entry%%|*}"; rest="${entry#*|}"; code="${rest%%|*}"; ms="${rest##*|}"
+    [[ $first -eq 0 ]] && json_candidates+=","
+    json_candidates+="{\"sni\":\"${sni}\",\"ms\":${ms},\"status\":\"pass\"}"
+    first=0
+  done
+  json_candidates+="]"
+
+  payload="{\"candidates\":${json_candidates},\"scanned_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"server_ip\":\"${SERVER_IP}\",\"total\":${total},\"passed\":${passed}}"
+
+  response=$(curl -s -w "\n%{http_code}" \
+    -X POST "${WORKER_URL}/api/scan-results" \
+    -H "Content-Type: application/json" \
+    -H "X-Scan-Secret: ${SCAN_SECRET}" \
+    -d "$payload" \
+    --max-time 15 \
+    2>/dev/null || echo -e "\nfailed")
+
+  http_status=$(echo "$response" | tail -1)
+  body=$(echo "$response" | head -1)
+
+  if [[ "$http_status" == "200" ]]; then
+    echo -e "${GREEN}✓ Results posted to Worker KV${NC}"
+  else
+    echo -e "${YELLOW}⚠ Worker POST failed (HTTP $http_status) — results not saved remotely${NC}"
+    echo "  $body"
+    echo "  Scanner continues to work standalone."
+  fi
+else
+  echo ""
+  echo "No Worker URL configured — results not posted remotely."
+  echo "To enable auto-posting: bash scan-sni.sh <ip> <file> <worker-url> <secret>"
+fi
+
 if [[ ${#pass_fast[@]} -gt 0 ]]; then
   best="${pass_fast[0]%%|*}"
   echo ""
   echo -e "${BOLD}Best candidate: $best${NC}"
-  echo "  → In 3x-ui panel: Inbounds > edit > Target: ${best}:443, SNI: ${best}"
-  echo "  → In radio/worker/src/config.js: update sni field for this server"
 fi
