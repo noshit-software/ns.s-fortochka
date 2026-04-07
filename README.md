@@ -57,7 +57,7 @@ scripts/
   lib/common.sh              # Shared functions used by all scripts
 
 configs/
-  sni-whitelist.txt          # SNI domains that work from Russia (ranked)
+  sni-whitelist.txt          # SNI domains that work from Russia (250+ entries, tiered by reliability)
   .env.example               # Server configuration template
 
 docs/
