@@ -88,6 +88,8 @@ A web-based control panel styled as an old-school Russian radio. Family members 
 
 The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and UUIDs never reach the browser.
 
+**Servers**: San Jose (Oracle Cloud, primary) + Helsinki (Hetzner, EU redundancy). Both served via single subscription URL — clients get both automatically.
+
 **Auto-rotation**: The Worker cron runs every 5 minutes. If a server's SNI disguise stops passing Russian DPI, the Worker automatically tries candidates from `SNI_CANDIDATES` in [config.js](radio/worker/src/config.js), updates the 3x-ui inbound via its API, and restarts XRay. The family's next "Tune In" gets a working link with zero admin intervention.
 
 **Finding working SNIs**: Run [scripts/scan-sni.sh](scripts/scan-sni.sh) from a Russian VPS to test which domains pass DPI. Results are automatically POSTed to the Worker and stored in KV — the rotator uses them immediately:

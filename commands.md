@@ -1,14 +1,15 @@
 # Fortochka — Quick Reference
 
-## SSH
+## Servers
 
-```bash
-ssh -i ~/.ssh/fortochka.key ubuntu@163.192.34.235
-```
+### San Jose (Oracle Cloud, primary)
+- SSH: `ssh -i ~/.ssh/fortochka.key ubuntu@163.192.34.235`
+- Panel: `http://163.192.34.235:2053/mHdFe3WjFxXacirHi0/`
+- Login: `admin` / `admin` (CHANGE THIS)
 
-## 3x-ui Panel
-
-- URL: `http://163.192.34.235:2053/mHdFe3WjFxXacirHi0/`
+### Helsinki (Hetzner, EU redundancy)
+- SSH: `ssh root@157.180.45.242`
+- Panel: `https://157.180.45.242:2053/KIIsezDyXh2qr4DATy/`
 - Login: `admin` / `admin` (CHANGE THIS)
 
 ## Subscription URLs
