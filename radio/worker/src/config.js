@@ -33,7 +33,7 @@ export const SERVERS = [
     uuid: "cf68f21d-8804-4eb5-8ae9-51c66cde05ed",
     publicKey: "wuOOmeEXNx7XbZaBv8TLteEg8aaq2d6cAYb8PvSpnV8",
     shortId: "3d1343b411ce3c1c",
-    sni: "ya.ru",           // seed — runtime will use panel/KV value
+    sni: "yahoo.com",        // seed — runtime will use panel/KV value
     panelUrl: "PANEL_URL",  // resolved from env secret at runtime
   },
   {
@@ -46,7 +46,7 @@ export const SERVERS = [
     uuid: "6fdf5939-5844-4e03-b4ad-1232bb12f5ce",
     publicKey: "RKU2oLZL1YnlpRApYaRXNKj4QIZfpSh0yacJlL4WLTQ",
     shortId: "3cdd",
-    sni: "ya.ru",
+    sni: "yahoo.com",
     panelUrl: "PANEL_URL_HELSINKI",
   },
   // Future servers drop in here — same shape, zero other changes needed:
@@ -69,6 +69,7 @@ export const SERVERS = [
 // Rules: major domain Russia can't block, TLS 1.3, NOT behind Cloudflare/Fastly CDN.
 // This list is the seed — the scanner will reorder it in KV based on live probe results.
 export const SNI_CANDIDATES = [
+  "yahoo.com",       // Yahoo — confirmed working from Moscow
   "ya.ru",           // Yandex — owns Russian infrastructure
   "apple.com",       // Apple — large iOS user base, stable IPs
   "microsoft.com",   // Microsoft — enterprise dependency
@@ -76,7 +77,6 @@ export const SNI_CANDIDATES = [
   "rbc.ru",          // Russian business news
   "dzen.ru",         // Yandex Zen
   "vkvideo.ru",      // VK Video
-  "yahoo.com",       // Yahoo — fallback
   "dl.google.com",   // Google download servers — sometimes passes
 ];
 

@@ -28,7 +28,7 @@ The script installs 3x-ui, flushes Oracle Cloud's default iptables rules, and pr
 3. Set Protocol: **vless**, Port: **443**
 4. Expand Client, set Flow: **xtls-rprx-vision**
 5. Set Security: **Reality**
-6. Set Target/SNI to a major site (e.g. `ya.ru:443` / `ya.ru`)
+6. Set Target/SNI to a major site (e.g. `yahoo.com:443` / `yahoo.com`)
 7. Click **Get New Cert**, then **Create**
 8. Click the QR code icon to get the VLESS share link
 

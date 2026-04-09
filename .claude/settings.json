@@ -5,7 +5,11 @@
       "WebFetch(domain:habr.com)",
       "WebFetch(domain:craftedsilicon.com)",
       "WebFetch(domain:wiki.aeza.net)",
-      "Bash(npx wrangler:*)"
+      "Bash(npx wrangler:*)",
+      "Edit(~/.claude/skills/hello/**)"
+    ],
+    "additionalDirectories": [
+      "d:\\ns.s\\ns.s-fortochka\\.claude"
     ]
   }
 }
