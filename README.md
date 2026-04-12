@@ -53,7 +53,7 @@ scripts/
   generate-subscription.sh   # Build subscription file from all active servers
   health-check.sh            # Check if servers are up and responding
   rotate-server.sh           # Replace a blocked server and update subscription
-  scan-sni.sh                # Test SNI candidates through DPI (run from Russian VPS)
+  scan-sni.sh                # Test SNI candidates through DPI (run from Russian VPS, randomized delays)
   lib/common.sh              # Shared functions used by all scripts
 
 configs/

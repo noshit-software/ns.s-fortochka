@@ -26,6 +26,8 @@ WORKER_URL="${3:-}"
 SCAN_SECRET="${4:-}"
 SERVER_PORT=443
 TIMEOUT=10
+DELAY_MIN=3
+DELAY_MAX=27
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -42,6 +44,7 @@ echo -e "${BOLD}=== Fortochka SNI Scanner ===${NC}"
 echo "Server:     $SERVER_IP:$SERVER_PORT"
 echo "Candidates: $CANDIDATES_FILE"
 echo "Timeout:    ${TIMEOUT}s per domain"
+echo "Delay:      ${DELAY_MIN}-${DELAY_MAX}s between probes (randomized)"
 echo "Worker:     ${WORKER_URL:-not configured (results printed only)}"
 echo ""
 echo "Testing TLS handshakes through Russian DPI..."
@@ -75,6 +78,9 @@ while IFS= read -r line; do
   http_code=$(echo "$output" | awk '{print $1}')
   time_s=$(echo "$output" | awk '{print $2}')
   time_ms=$(echo "$time_s" | awk '{printf "%d", $1 * 1000}')
+
+  # Random delay between probes — avoids looking like an automated scanner
+  sleep $(( DELAY_MIN + RANDOM % (DELAY_MAX - DELAY_MIN + 1) ))
 
   if [[ "$http_code" == "000" ]]; then
     echo -e "${RED}FAIL${NC}   (no connection)"
