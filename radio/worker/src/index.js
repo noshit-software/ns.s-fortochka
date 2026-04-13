@@ -4,7 +4,7 @@
 import { SERVERS, PIN, SNI_CANDIDATES } from "./config.js";
 import { generateVlessLink } from "./vless.js";
 import { checkAllServers } from "./health.js";
-import { rotateSni, getLiveSni, getCandidates } from "./rotator.js";
+import { rotateSni, rotateNow, getLiveSni, getCandidates } from "./rotator.js";
 
 // CORS headers
 const CORS_HEADERS = {
@@ -46,6 +46,12 @@ export default {
     // Scanner is optional — if it goes down, rotator falls back to config.js seed.
     if (url.pathname === "/api/scan-results" && request.method === "POST") {
       return handleScanResults(request, env);
+    }
+
+    // Triggered by the Moscow scanner when it detects the current SNI is blocked from Russia.
+    // Picks a random candidate from KV and applies it to the panel immediately.
+    if (url.pathname === "/api/rotate-now" && request.method === "POST") {
+      return handleRotateNow(request, env);
     }
 
     return new Response("Not found", { status: 404 });
@@ -176,9 +182,37 @@ async function handleSub(env) {
     status: 200,
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
-      "Profile-Update-Interval": "6",
+      "Profile-Update-Interval": "1",
     },
   });
+}
+
+// Triggered by the Moscow scanner (inside Russia) when it detects a block.
+// Rotates the server to a random new SNI from KV candidates immediately.
+async function handleRotateNow(request, env) {
+  const secret = env.SCAN_SECRET;
+  if (secret) {
+    const provided = request.headers.get("X-Scan-Secret") || "";
+    if (provided !== secret) {
+      return jsonResponse({ error: "Unauthorized" }, 401);
+    }
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON" }, 400);
+  }
+
+  const serverId = body.server_id || "oracle-sanjose";
+  const server = SERVERS.find((s) => s.id === serverId);
+  if (!server) {
+    return jsonResponse({ error: `Server not found: ${serverId}` }, 404);
+  }
+
+  const result = await rotateNow(server, env);
+  return jsonResponse(result, result.ok ? 200 : 500);
 }
 
 // Receive ranked SNI candidates from the Moscow scanner box.

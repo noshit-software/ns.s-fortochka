@@ -4,7 +4,7 @@ A small window you crack open for fresh air when everything else is sealed shut.
 
 Anti-censorship VPN toolkit. Shell scripts and guides to deploy and manage VLESS+Reality proxy servers for people in Russia who need uncensored internet access.
 
-The SNI scanner (`scripts/scan-sni.sh`) runs from a Russian VPS, tests candidate domains against Russian DPI (pass), TLS 1.3 support, and CDN detection, then posts a ranked list to a Cloudflare Worker KV. The Worker rotates the active SNI in a random shuffle on every reconnect, making it much harder for DPI to profile and block.
+The SNI scanner (`scripts/scan-sni.sh`) runs from a Russian VPS, tests candidate domains against Russian DPI (pass), TLS 1.3 support, and CDN detection, then posts a ranked list to a Cloudflare Worker KV. A companion health checker (`scripts/check-connection.sh`) runs every 3 minutes from the same Russian VPS — if it detects the current SNI is blocked, it triggers the Worker to rotate to a new one immediately. The client app picks up the new SNI on its next subscription refresh (every hour).
 
 ## Quick Start
 

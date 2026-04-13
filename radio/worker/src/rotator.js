@@ -115,6 +115,48 @@ function resolvePanelUrl(server, env) {
   return env[server.panelUrl] || env.PANEL_URL || null;
 }
 
+// Pick a random candidate from KV (not the current SNI) and apply it to the panel.
+// Called by /api/rotate-now — triggered by the Moscow scanner when it detects a block.
+export async function rotateNow(server, env) {
+  const panelUrl = resolvePanelUrl(server, env);
+  const panelUser = env.PANEL_USER;
+  const panelPass = env.PANEL_PASS;
+
+  if (!panelUrl || !panelUser || !panelPass) {
+    return { ok: false, reason: "Panel credentials not configured" };
+  }
+
+  const currentSni = env.STATUS_KV ? await env.STATUS_KV.get(`sni:${server.id}`) : server.sni;
+  const stored = env.STATUS_KV ? await env.STATUS_KV.get("sni-candidates") : null;
+  const candidates = stored ? JSON.parse(stored) : [];
+
+  const others = candidates.filter((s) => s !== currentSni);
+  if (others.length === 0) {
+    return { ok: false, reason: "No alternative candidates in KV" };
+  }
+
+  const newSni = others[Math.floor(Math.random() * others.length)];
+
+  try {
+    const cookie = await panelLogin(panelUrl, panelUser, panelPass);
+    const inbounds = await getInbounds(panelUrl, cookie);
+    const inbound = findVlessInbound(inbounds);
+    if (!inbound) return { ok: false, reason: "No VLESS inbound found on port 443" };
+
+    await updateInboundSni(panelUrl, cookie, inbound, newSni);
+    await restartXray(panelUrl, cookie);
+
+    if (env.STATUS_KV) {
+      await env.STATUS_KV.put(`sni:${server.id}`, newSni);
+    }
+
+    console.log(`[rotate-now] ${server.id}: ${currentSni} → ${newSni}`);
+    return { ok: true, newSni, previousSni: currentSni };
+  } catch (err) {
+    return { ok: false, reason: `Panel error: ${err.message}` };
+  }
+}
+
 // Fetch the current SNI from the live 3x-ui inbound config.
 // Returns the SNI string, or null if panel is unreachable or misconfigured.
 export async function getLiveSni(server, env) {
