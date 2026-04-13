@@ -15,421 +15,139 @@
 #   Russian IP range as an intermediate relay node. The SNI alone is not always enough.
 #   For wireguard/home broadband users, SNI is still the primary gate.
 #
+# One entry per root domain — if the root fails, subdomains will too.
 # Run scripts/scan-sni.sh from a Russian VPS to verify which ones still work.
 # Sources: github.com/igareck/vpn-configs-for-russia, github.com/hxehex/russia-mobile-internet-whitelist
-# Last updated: 2026-04-06
+# Last updated: 2026-04-13
 
 # ============================================================
-# TIER 1 — HIGHEST PRIORITY (most reliable from Russia, 2025)
-# Seen in active working configs from igareck and ntc.party
+# TIER 1 — RUSSIAN DOMESTIC (whitelisted on every ISP)
+# Fails if ISP does combined IP+SNI check (your server IP ≠ their IP range)
 # ============================================================
 
-# VK / UserAPI — VK is whitelisted on every Russian ISP
-www.vk.com
-m.vk.com
-eh.vk.com
+# VK
 vk.com
-login.vk.com
-cloud.vk.com
-api.vk.com
-id.vk.ru
-api.vk.ru
-push.vk.ru
-music.vk.ru
-# UserAPI (VK CDN, widely whitelisted, direct IPs)
-sun6-21.userapi.com
-sun6-22.userapi.com
-sun6-23.userapi.com
-sun7-12.userapi.com
-sun7-13.userapi.com
-sun7-14.userapi.com
-sun7-15.userapi.com
-sun7-16.userapi.com
-sun7-17.userapi.com
-sun7-18.userapi.com
-sun7-19.userapi.com
-sun7-20.userapi.com
-sun7-21.userapi.com
-sun7-22.userapi.com
-sun7-23.userapi.com
-sun7-24.userapi.com
-# VK tunnel / apps
-tunnel.vk-apps.com
+vk.ru
+userapi.com
 
-# Yandex — most critical Russian internet infrastructure
-ya.ru
+# Yandex
 yandex.ru
 yandex.com
 yandex.net
-mail.yandex.ru
-mail.yandex.com
-api-maps.yandex.ru
-mc.yandex.ru
-mc.yandex.com
-static-mon.yandex.net
-smartcaptcha.yandexcloud.net
-sso.passport.yandex.ru
-api.browser.yandex.ru
-browser.yandex.ru
-browser.yandex.com
-yastatic.net
-cdn.yandex.ru
-s3.yandex.net
-speller.yandex.net
-strm.yandex.net
-strm.yandex.ru
 
-# Mail.ru Group (VK Group)
-www.mail.ru
-e.mail.ru
-cloud.mail.ru
-my.mail.ru
-maps.mail.ru
+# Mail.ru
+mail.ru
 
-# Sberbank — Russia's largest state bank, completely untouchable
-www.sberbank.ru
+# Sberbank
 sberbank.ru
-online.sberbank.ru
-id.sber.ru
 
-# Gosuslugi — Russian federal e-government portal, cannot be blocked
+# Gosuslugi
 gosuslugi.ru
-www.gosuslugi.ru
-lk.gosuslugi.ru
-esia.gosuslugi.ru
 
 # ============================================================
-# TIER 2 — MAJOR RUSSIAN PLATFORMS (high confidence)
+# TIER 2 — MAJOR RUSSIAN PLATFORMS
 # ============================================================
 
-# Avito — Russia's largest classifieds, 60M+ monthly users
 avito.ru
-www.avito.ru
-m.avito.ru
-api.avito.ru
-
-# Ozon — Russia's largest e-commerce
 ozon.ru
-www.ozon.ru
-pay.ozon.ru
-seller.ozon.ru
-bank.ozon.ru
-
-# Wildberries — Russia's #1 online retailer
 wb.ru
-a.wb.ru
-
-# Dzen (Yandex Zen)
 dzen.ru
-zen.yandex.ru
-
-# RBC — major business news (critical for financial sector)
 rbc.ru
-
-# Kinopoisk — Russia's largest movie service (Yandex)
-www.kinopoisk.ru
-hd.kinopoisk.ru
-
-# Rutube — state-promoted video platform
+kinopoisk.ru
 rutube.ru
-static.rutube.ru
-
-# OK (Odnoklassniki)
-m.ok.ru
-live.ok.ru
-api.ok.ru
-
-# RZD (Russian Railways) — critical national transport
+ok.ru
 rzd.ru
-www.rzd.ru
-ticket.rzd.ru
-my.rzd.ru
-
-# Alfa Bank
 alfabank.ru
-metrics.alfabank.ru
-
-# VTB Bank — state bank
-www.vtb.ru
-
-# T-Bank (Tinkoff) — largest digital bank in Russia
-id.tbank.ru
-cdn.tbank.ru
-
-# 2GIS — Russia's dominant map/business directory
+vtb.ru
+tbank.ru
 2gis.ru
-2gis.com
-api.2gis.ru
-keys.api.2gis.com
-catalog.api.2gis.com
-
-# Max.ru (formerly ICQ) — VK messaging
 max.ru
-web.max.ru
-api.max.ru
-dev.max.ru
-
-# Auto.ru — Russia's largest car classifieds
 auto.ru
-sso.auto.ru
-
-# Lemanapro (Leroy Merlin Russia) — retail, can't be blocked without impact
 lemanapro.ru
 
-# X5 Retail Group (Pyaterochka, Perekrestok) — biggest grocery chain
-ads.x5.ru
-
-# Ads/analytics infrastructure
-an.yandex.ru
-yabs.yandex.ru
-
 # ============================================================
-# TIER 3 — MICROSOFT (enterprise dependency, direct IPs from outside Russia)
-# Microsoft disabled its CDN in Russia in 2022 — uses direct datacenter IPs
+# TIER 3 — MICROSOFT (direct datacenter IPs, no Russia CDN since 2022)
 # ============================================================
 
-www.microsoft.com
 microsoft.com
-support.microsoft.com
-docs.microsoft.com
-software.download.prss.microsoft.com
+outlook.com
 
 # ============================================================
-# TIER 4 — APPLE (large iOS user base in Russia, direct IPs, no Russia CDN)
+# TIER 4 — APPLE (large iOS user base, direct IPs, no Russia CDN)
 # ============================================================
 
 apple.com
-www.apple.com
-support.apple.com
-gateway.icloud.com
-itunes.apple.com
-apps.apple.com
-podcasts.apple.com
-developer.apple.com
-# Apple CDN (direct, non-Cloudflare)
-swdist.apple.com
-swcdn.apple.com
-updates.cdn-apple.com
-mensura.cdn-apple.com
-osxapps.itunes.apple.com
-aod.itunes.apple.com
+icloud.com
 
 # ============================================================
-# TIER 5 — INTERNATIONAL (use only if Russian-hosted IPs not available)
-# These work better for home broadband than mobile ISPs
+# TIER 5 — INTERNATIONAL (best for home broadband, Russia can't IP-verify)
 # ============================================================
 
-# Yahoo — historically reliable, no CDN
+# Search / tech
 yahoo.com
-www.yahoo.com
-
-# Google download servers (not search, which is CDN-heavy)
 dl.google.com
-
-# Mozilla (open source, no Russian CDN)
 addons.mozilla.org
-download-installer.cdn.mozilla.net
-
-# Amazon AWS (enterprise dependency — use aws.amazon.com not amazon.com which has CDN)
 aws.amazon.com
-s0.awsstatic.com
-d1.awsstatic.com
-
-# Samsung (major Android vendor in Russia)
 samsung.com
-www.samsung.com
 
-# Cloudflare DNS (not Cloudflare CDN — the resolver IP is stable)
-# Note: 1.1.1.1 as SNI is unusual but some configs use it
-# 1.1.1.1
+# Enterprise SaaS (Russia can't block without crippling businesses)
+salesforce.com
+oracle.com
+sap.com
+zoom.us
+slack.com
+atlassian.com
+github.com
+gitlab.com
+dropbox.com
+box.com
+docusign.com
+
+# Finance / payments (blocking = economic damage)
+visa.com
+mastercard.com
+swift.com
+paypal.com
+stripe.com
+
+# Major international media / news
+reuters.com
+bloomberg.com
+bbc.com
+ft.com
+
+# CDN-free international infrastructure
+mozilla.org
+debian.org
+ubuntu.com
+kernel.org
+nginx.org
+
+# International telecoms
+ericsson.com
+nokia.com
+huawei.com
+
+# International banks with Russian operations
+raiffeisen.com
+unicredit.eu
+citibank.com
 
 # ============================================================
-# TIER 6 — ADDITIONAL RUSSIAN DOMAINS (from hxehex whitelist)
-# Russia's mobile internet whitelist — verified accessible under restrictions
+# TIER 6 — RUSSIAN GOVERNMENT (cannot be blocked)
 # ============================================================
 
-# Government infrastructure
 kremlin.ru
 government.ru
-digital.gov.ru
-duma.gov.ru
-izbirkom.ru
-www.cikrf.ru
+gov.ru
 
-# Major Russian news and media
+# ============================================================
+# TIER 7 — OTHER RUSSIAN (from mobile whitelist)
+# ============================================================
+
 lenta.ru
 gazeta.ru
 kp.ru
 rambler.ru
-
-# Russian transport
 tutu.ru
-
-# Telecom
-www.t2.ru
-
-# Russian maps
-yandex.net
-
-# ============================================================
-# USERAPI EXTENDED — large block of VK media CDN subdomains
-# All direct IPs, all on Russian ISP whitelists
-# ============================================================
-
-pptest.userapi.com
-sun1-13.userapi.com
-sun1-14.userapi.com
-sun1-15.userapi.com
-sun1-16.userapi.com
-sun1-17.userapi.com
-sun1-18.userapi.com
-sun1-19.userapi.com
-sun1-20.userapi.com
-sun1-21.userapi.com
-sun1-22.userapi.com
-sun1-23.userapi.com
-sun1-24.userapi.com
-sun1-25.userapi.com
-sun1-26.userapi.com
-sun1-27.userapi.com
-sun1-28.userapi.com
-sun1-29.userapi.com
-sun1-30.userapi.com
-sun1-47.userapi.com
-sun1-54.userapi.com
-sun1-55.userapi.com
-sun1-56.userapi.com
-sun1-57.userapi.com
-sun1-83.userapi.com
-sun1-84.userapi.com
-sun1-85.userapi.com
-sun1-86.userapi.com
-sun1-87.userapi.com
-sun1-88.userapi.com
-sun1-89.userapi.com
-sun1-90.userapi.com
-sun1-91.userapi.com
-sun1-92.userapi.com
-sun1-93.userapi.com
-sun1-94.userapi.com
-sun1-95.userapi.com
-sun1-96.userapi.com
-sun1-97.userapi.com
-sun1-98.userapi.com
-sun1-99.userapi.com
-sun2-10.userapi.com
-sun2-11.userapi.com
-sun2-12.userapi.com
-sun2-13.userapi.com
-sun2-14.userapi.com
-sun2-15.userapi.com
-sun2-16.userapi.com
-sun2-17.userapi.com
-sun2-18.userapi.com
-sun2-19.userapi.com
-sun2-20.userapi.com
-sun2-21.userapi.com
-sun2-22.userapi.com
-sun3-10.userapi.com
-sun3-11.userapi.com
-sun3-12.userapi.com
-sun3-13.userapi.com
-sun3-16.userapi.com
-sun3-17.userapi.com
-sun3-18.userapi.com
-sun3-19.userapi.com
-sun3-20.userapi.com
-sun3-21.userapi.com
-sun3-22.userapi.com
-sun3-23.userapi.com
-sun3-24.userapi.com
-sun4-10.userapi.com
-sun4-11.userapi.com
-sun4-12.userapi.com
-sun4-15.userapi.com
-sun4-16.userapi.com
-sun4-17.userapi.com
-sun4-18.userapi.com
-sun4-19.userapi.com
-sun4-20.userapi.com
-sun4-21.userapi.com
-sun4-22.userapi.com
-sun9-10.userapi.com
-sun9-11.userapi.com
-sun9-12.userapi.com
-sun9-13.userapi.com
-sun9-14.userapi.com
-sun9-15.userapi.com
-sun9-16.userapi.com
-sun9-17.userapi.com
-sun9-18.userapi.com
-sun9-19.userapi.com
-sun9-20.userapi.com
-sun9-21.userapi.com
-sun9-22.userapi.com
-sun9-23.userapi.com
-sun9-24.userapi.com
-sun9-25.userapi.com
-sun9-26.userapi.com
-sun9-27.userapi.com
-sun9-28.userapi.com
-sun9-29.userapi.com
-sun9-30.userapi.com
-sun9-31.userapi.com
-sun9-32.userapi.com
-sun9-33.userapi.com
-sun9-34.userapi.com
-sun9-35.userapi.com
-sun9-36.userapi.com
-sun9-37.userapi.com
-sun9-38.userapi.com
-sun9-39.userapi.com
-sun9-40.userapi.com
-sun9-41.userapi.com
-sun9-42.userapi.com
-sun9-43.userapi.com
-sun9-44.userapi.com
-sun9-45.userapi.com
-sun9-46.userapi.com
-sun9-47.userapi.com
-sun9-48.userapi.com
-sun9-49.userapi.com
-sun9-50.userapi.com
-sun9-51.userapi.com
-sun9-52.userapi.com
-sun9-53.userapi.com
-sun9-54.userapi.com
-sun9-55.userapi.com
-sun9-56.userapi.com
-sun9-57.userapi.com
-sun9-58.userapi.com
-sun9-59.userapi.com
-sun9-60.userapi.com
-sun9-61.userapi.com
-sun9-62.userapi.com
-sun9-63.userapi.com
-sun9-64.userapi.com
-sun9-65.userapi.com
-sun9-66.userapi.com
-sun9-67.userapi.com
-sun9-68.userapi.com
-sun9-69.userapi.com
-sun9-70.userapi.com
-sun9-71.userapi.com
-sun9-72.userapi.com
-sun9-73.userapi.com
-sun9-74.userapi.com
-sun9-75.userapi.com
-sun9-76.userapi.com
-sun9-77.userapi.com
-sun9-78.userapi.com
-sun9-79.userapi.com
-sun9-80.userapi.com
-sun9-81.userapi.com
-sun9-82.userapi.com
-sun9-83.userapi.com
-sun9-84.userapi.com
-sun9-85.userapi.com
-sun9-86.userapi.com
-sun9-87.userapi.com
-sun9-88.userapi.com
+t2.ru

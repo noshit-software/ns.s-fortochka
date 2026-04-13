@@ -166,12 +166,15 @@ export async function rotateSni(server, sniCandidates, env) {
     return { rotated: false, reason: "Panel credentials not configured (set PANEL_URL, PANEL_USER, PANEL_PASS secrets)" };
   }
 
-  // Find a working SNI — skip the current one first, try others, fall back to current
+  // Find a working SNI — skip the current one, shuffle the rest, fall back to current
   const currentSni = server.sni;
-  const candidates = [
-    ...sniCandidates.filter((s) => s !== currentSni),
-    currentSni,
-  ];
+  const others = sniCandidates.filter((s) => s !== currentSni);
+  // Fisher-Yates shuffle so DPI can't learn a fixed rotation pattern
+  for (let i = others.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [others[i], others[j]] = [others[j], others[i]];
+  }
+  const candidates = [...others, currentSni];
 
   let workingSni = null;
   for (const sni of candidates) {
