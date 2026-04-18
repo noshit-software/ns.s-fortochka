@@ -56,6 +56,8 @@ scripts/
   health-check.sh            # Check if servers are up and responding
   rotate-server.sh           # Replace a blocked server and update subscription
   scan-sni.sh                # Test SNI candidates through DPI (run from Russian VPS, randomized delays)
+  check-connection.sh        # Health check + auto-rotation (runs every 3min on Moscow VPS via cron)
+  demo.sh                    # Live demo: shows VLESS connection, forces rotation, confirms recovery
   lib/common.sh              # Shared functions used by all scripts
 
 configs/
@@ -74,11 +76,11 @@ radio/
     style.css                # Old-school Russian radio styling
     app.js                   # Fetch status, handle preset buttons
   worker/                    # Cloudflare Worker (API)
-    src/index.js             # Request router + cron health checks + rotation
+    src/index.js             # Request router + cron health checks + /api/set-sni KV sync
     src/config.js            # Server configs + SNI candidate list (secrets stay here)
     src/health.js            # Server health probes
     src/vless.js             # VLESS link generator
-    src/rotator.js           # Auto-rotates SNI via 3x-ui API when server goes down
+    src/rotator.js           # SNI candidate store (reads KV or falls back to config seed)
 
 providers/                   # Deploy guides per VPS provider
 monitor/                     # Health monitor with Telegram alerts
@@ -92,7 +94,9 @@ The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and
 
 **Servers**: San Jose (Oracle Cloud, primary) + Helsinki (Hetzner, EU redundancy). Both served via single subscription URL — clients get both automatically.
 
-**Auto-rotation**: The Worker cron runs every 5 minutes. If a server's SNI disguise stops passing Russian DPI, the Worker automatically tries candidates from `SNI_CANDIDATES` in [config.js](radio/worker/src/config.js), updates the 3x-ui inbound via its API, and restarts XRay. The family's next "Tune In" gets a working link with zero admin intervention.
+**Auto-rotation**: `check-connection.sh` runs every 3 minutes on the Moscow VPS (RUVDS). It tests the current SNI through Russian DPI — if blocked, it picks a new candidate from `/root/working-snis.txt`, updates the 3x-ui panel directly via SQLite, restarts XRay, and calls `/api/set-sni` to keep the Worker KV in sync. The family's next subscription refresh gets the new SNI automatically.
+
+The Worker cannot do this itself — Cloudflare blocks outbound connections to port 2053. The Moscow box is the only component inside Russia that can both test DPI and reach the panel.
 
 **Finding working SNIs**: Run [scripts/scan-sni.sh](scripts/scan-sni.sh) from a Russian VPS to test which domains pass DPI. Results are automatically POSTed to the Worker and stored in KV — the rotator uses them immediately:
 ```bash
