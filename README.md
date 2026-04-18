@@ -92,7 +92,7 @@ A web-based control panel styled as an old-school Russian radio. Family members 
 
 The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and UUIDs never reach the browser.
 
-**Servers**: San Jose (Oracle Cloud, primary) + Helsinki (Hetzner, EU redundancy). Both served via single subscription URL — clients get both automatically.
+**Servers**: San Jose (Oracle Cloud, free tier) — single server, subscription URL auto-updates SNI on rotation.
 
 **Auto-rotation**: `check-connection.sh` runs every 3 minutes on the Moscow VPS (RUVDS). It tests the current SNI through Russian DPI — if blocked, it picks a new candidate from `/root/working-snis.txt`, updates the 3x-ui panel directly via SQLite, restarts XRay, and calls `/api/set-sni` to keep the Worker KV in sync. The family's next subscription refresh gets the new SNI automatically.
 

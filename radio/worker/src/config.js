@@ -36,19 +36,6 @@ export const SERVERS = [
     sni: "yahoo.com",        // seed — runtime will use panel/KV value
     panelUrl: "PANEL_URL",  // resolved from env secret at runtime
   },
-  {
-    id: "hetzner-helsinki",
-    name: "Helsinki",
-    region: "eu-north",
-    regionLabel: "Europe North",
-    ip: "157.180.45.242",
-    port: 443,
-    uuid: "6fdf5939-5844-4e03-b4ad-1232bb12f5ce",
-    publicKey: "RKU2oLZL1YnlpRApYaRXNKj4QIZfpSh0yacJlL4WLTQ",
-    shortId: "3cdd",
-    sni: "yahoo.com",
-    panelUrl: "PANEL_URL_HELSINKI",
-  },
   // Future servers drop in here — same shape, zero other changes needed:
   // {
   //   id: "scaleway-warsaw",
