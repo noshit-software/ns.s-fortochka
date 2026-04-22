@@ -35,6 +35,7 @@ export const SERVERS = [
     shortId: "3d1343b411ce3c1c",
     sni: "yahoo.com",        // seed — runtime will use panel/KV value
     panelUrl: "PANEL_URL",  // resolved from env secret at runtime
+    wsPort: 8080,           // VLESS+WebSocket fallback (proxied via CF Worker)
   },
   // Future servers drop in here — same shape, zero other changes needed:
   // {

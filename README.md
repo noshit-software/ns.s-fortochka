@@ -94,7 +94,7 @@ The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and
 
 **Servers**: San Jose (Oracle Cloud, free tier) — single server, subscription URL auto-updates SNI on rotation.
 
-**Auto-rotation**: `check-connection.sh` runs every 3 minutes on the Moscow VPS (RUVDS). It tests the current SNI through Russian DPI — if blocked, it picks a new candidate from `/root/working-snis.txt`, updates the 3x-ui panel directly via SQLite, restarts XRay, and calls `/api/set-sni` to keep the Worker KV in sync. The family's next subscription refresh gets the new SNI automatically.
+**Auto-rotation**: `check-connection.sh` runs every 3 minutes on the Moscow VPS (Aeza). It tests the current SNI through Russian DPI — if blocked, it picks a new candidate from `/root/working-snis.txt`, updates the 3x-ui panel directly via SQLite, restarts XRay, and calls `/api/set-sni` to keep the Worker KV in sync. The family's next subscription refresh gets the new SNI automatically.
 
 The Worker cannot do this itself — Cloudflare blocks outbound connections to port 2053. The Moscow box is the only component inside Russia that can both test DPI and reach the panel.
 

@@ -9,7 +9,7 @@
 //   - Stores scan results in KV (written by scan-sni.sh every 4h)
 
 import { SERVERS, PIN, SNI_CANDIDATES } from "./config.js";
-import { generateVlessLink } from "./vless.js";
+import { generateVlessLink, generateVlessWsLink } from "./vless.js";
 import { checkAllServers } from "./health.js";
 import { getCandidates } from "./rotator.js";
 
@@ -52,6 +52,12 @@ export default {
     // Keeps KV in sync so subscription URLs serve the new SNI immediately.
     if (url.pathname === "/api/set-sni" && request.method === "POST") {
       return handleSetSni(request, env);
+    }
+
+    // WebSocket proxy — tunnels VLESS+WS to Oracle SJC port 8080.
+    // DPI sees traffic to Cloudflare IPs only.
+    if (url.pathname === "/vless") {
+      return handleWsProxy(request);
     }
 
     return new Response("Not found", { status: 404 });
@@ -130,7 +136,8 @@ async function handleSub(env) {
     })
   );
 
-  const links = liveServers.map((s) => generateVlessLink(s)).join("\n");
+  const cfDomain = "fortochka-radio-api.robertgardunia.workers.dev";
+  const links = liveServers.map((s) => generateVlessWsLink(s, cfDomain)).join("\n");
   const encoded = btoa(links);
 
   return new Response(encoded, {
@@ -216,6 +223,17 @@ function buildStatusResponse(results, servers = SERVERS) {
       status: statusMap[s.id] || "unknown",
     })),
   };
+}
+
+// Proxy WebSocket VLESS traffic to Oracle SJC port 8080.
+// Client connects here (CF edge IP), CF forwards to Oracle.
+async function handleWsProxy(request) {
+  const target = new Request("http://163.192.34.235:8080/vless", {
+    method: request.method,
+    headers: request.headers,
+    body: request.body,
+  });
+  return fetch(target);
 }
 
 function jsonResponse(data, status = 200) {

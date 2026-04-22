@@ -1,5 +1,4 @@
 // Fortochka Radio — VLESS Link Generator
-// Matches format from scripts/generate-client-config.sh
 
 export function generateVlessLink(server) {
   const params = new URLSearchParams({
@@ -15,4 +14,18 @@ export function generateVlessLink(server) {
   });
 
   return `vless://${server.uuid}@${server.ip}:${server.port}?${params.toString()}#Fortochka-${server.id}`;
+}
+
+export function generateVlessWsLink(server, cfDomain) {
+  const params = new URLSearchParams({
+    type: "ws",
+    encryption: "none",
+    security: "tls",
+    host: cfDomain,
+    path: "/vless",
+    fp: "chrome",
+    sni: cfDomain,
+  });
+
+  return `vless://${server.uuid}@${cfDomain}:443?${params.toString()}#Fortochka-${server.id}-ws`;
 }
