@@ -57,6 +57,7 @@ scripts/
   rotate-server.sh           # Replace a blocked server and update subscription
   scan-sni.sh                # Test SNI candidates through DPI (run from Russian VPS, randomized delays)
   check-connection.sh        # Health check + auto-rotation (runs every 3min on Moscow VPS via cron)
+  rotate-sni.sh              # Manually rotate SNI in 3x-ui SQLite DB and restart XRay
   demo.sh                    # Live demo: shows VLESS connection, forces rotation, confirms recovery
   lib/common.sh              # Shared functions used by all scripts
 
@@ -83,7 +84,9 @@ radio/
     src/rotator.js           # SNI candidate store (reads KV or falls back to config seed)
 
 providers/                   # Deploy guides per VPS provider
-monitor/                     # Health monitor with Telegram alerts
+monitor/
+  monitor.py                 # Live VLESS connection monitor — tails XRay log, prints human-readable events with labels
+  check-servers.sh           # Health monitor with Telegram alerts
 ```
 
 ## Fortochka Radio
@@ -94,7 +97,9 @@ The backend (Cloudflare Worker) holds server configs securely — IPs, keys, and
 
 **Servers**: San Jose (Oracle Cloud, free tier) — single server, subscription URL auto-updates SNI on rotation.
 
-**Auto-rotation**: `check-connection.sh` runs every 3 minutes on the Moscow VPS (Aeza). It tests the current SNI through Russian DPI — if blocked, it picks a new candidate from `/root/working-snis.txt`, updates the 3x-ui panel directly via SQLite, restarts XRay, and calls `/api/set-sni` to keep the Worker KV in sync. The family's next subscription refresh gets the new SNI automatically.
+**Auto-rotation**: `check-connection.sh` runs every 3 minutes on the Moscow VPS (Aeza). If the SNI is blocked, it rotates Oracle's XRay config via SQLite and notifies the Worker.
+
+**CDN fallback**: `cloudflared` runs on Oracle SJC, creating an outbound tunnel to Cloudflare. The subscription serves a WebSocket VLESS link pointing to the tunnel hostname — DPI only sees Cloudflare IPs. On restart, the tunnel registers its new hostname with Worker KV automatically. It tests the current SNI through Russian DPI — if blocked, it picks a new candidate from `/root/working-snis.txt`, updates the 3x-ui panel directly via SQLite, restarts XRay, and calls `/api/set-sni` to keep the Worker KV in sync. The family's next subscription refresh gets the new SNI automatically.
 
 The Worker cannot do this itself — Cloudflare blocks outbound connections to port 2053. The Moscow box is the only component inside Russia that can both test DPI and reach the panel.
 
